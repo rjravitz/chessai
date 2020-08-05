@@ -12,7 +12,8 @@ public class Rook extends Piece{
 	}
 	
 	public boolean isValidMove(int sx, int sy, int ex, int ey) {
-		if(!Move.onBoard(ex, ey)) return false;
+		if(!Move.onBoard(ex, ey) || inCheck(this.team, sx, sy, ex, ey)
+				|| ((sx == ex) && (sy == ey))) return false;
 		if(cb.board[ex][ey] != null && !(this.team ^ cb.board[ex][ey].team)) return false;
 		if(!((Math.abs(sx - ex) == 0) ^ (Math.abs(sy - ey) == 0))) {return false;}
 		if(sy < ey) { 

@@ -12,7 +12,8 @@ public class Queen extends Piece{
 	}
 	
 	public boolean isValidMove(int sx, int sy, int ex, int ey) {
-		if(!Move.onBoard(ex, ey) || inCheck(this.team, sx, sy, ex, ey)) return false;
+		if(!Move.onBoard(ex, ey) || inCheck(this.team, sx, sy, ex, ey)
+				|| ((sx == ex) && (sy == ey))) return false;
 		if(cb.board[ex][ey] != null && !(this.team ^ cb.board[ex][ey].team)) return false;
 		if(Math.abs(sx - ex) == Math.abs(sy - ey)) { //same as bishop
 			int i, j;

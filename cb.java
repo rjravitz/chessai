@@ -1,10 +1,5 @@
 import java.util.ArrayList;
 
-//NOTE: I'm currently assuming the user will not try to move a piece to its original
-//spot as a move. So make sure to check for that. -- to do
-
-//also get rid of the test board and add abpruning
-
 //source for piece-square tables: https://www.chessprogramming.org/Simplified_Evaluation_Function
 
 public class cb { 
@@ -244,8 +239,8 @@ public class cb {
     static void execMove(Piece[][] b, int sx, int sy, int ex, int ey) {
     	b[ex][ey] = b[sx][sy];
 		b[sx][sy] = null;
-		if(ey == 0 && b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
-		else if(ey == 7 && !b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
+		if(ey == 0 && b[ex][ey] != null &&b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
+		else if(ey == 7 && b[ex][ey] != null && !b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
 		if(b[ex][ey] != null && b[ex][ey].team && b[ex][ey].rank == 0) {bkx = ex; bky = ey;}
 		else if(b[ex][ey] != null && !b[ex][ey].team && b[ex][ey].rank == 0) {wkx = ex; wky = ey;}
 		tbkx = bkx; tbky = bky; twkx = wkx; twky = wky;
