@@ -256,10 +256,11 @@ public class cb {
 	public static int[] minimax() {
 		bseenEndgame = endgame(true); wseenEndgame = endgame(false);
 		int score = boardscore();
-		return maxie(2, score);
+		return maxie(3, score, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 	
-	public static int[] maxie(int depth, int score) {
+	public static int[] maxie(int depth, int score, int al, int be) {
+		int alpha = al; int beta = be;
 		int res = score; boolean endgameFlag = false; boolean pieceTaken = false;
 		int[] ans = {(int)-1e9, -1, -1, -1, -1};
 		for(int i = 0; i < 8; i++) {
@@ -274,7 +275,7 @@ public class cb {
 						res -= ps;
 						execMove(board, i, j, ex, ey);
 						if(pieceTaken && endgame(false)) {wseenEndgame = true; endgameFlag = true;}
-						int[] minChoice = minnie(depth, res);
+						int[] minChoice = minnie(depth, res, alpha, beta);
 						if(minChoice[0] > ans[0]) {
 							ans[0] = minChoice[0]; ans[1] = i; ans[2] = j;
 							ans[3] = ex; ans[4] = ey;
@@ -284,6 +285,8 @@ public class cb {
 						if(board[i][j].rank == 0) {bkx = i; bky = j; tbkx = bkx; tbky = bky;}
 						res += ps;
 						if(endgameFlag) wseenEndgame = false;
+						if(minChoice[0] > alpha && minChoice[0] < beta) alpha = minChoice[0];
+						else if(minChoice[0] >= beta) return ans;
 					}
 				}
 			}
@@ -291,7 +294,8 @@ public class cb {
 		return ans;
 	}
 	
-	public static int[] minnie(int depth, int score) {
+	public static int[] minnie(int depth, int score, int al, int be) {
+		int alpha = al; int beta = be;
 		int res = score; boolean endgameFlag = false; boolean pieceTaken = false;
 		int[] ans = {(int)1e9, -1, -1, -1, -1};
 		if(depth == 0) {ans[0] = score; return ans;}
@@ -307,7 +311,7 @@ public class cb {
 						res -= ps;
 						execMove(board, i, j, ex, ey);
 						if(pieceTaken && endgame(false)) {bseenEndgame = true; endgameFlag = true;}
-						int[] maxChoice = maxie(depth - 1, res);
+						int[] maxChoice = maxie(depth - 1, res, alpha, beta);
 						if(maxChoice[0] < ans[0]) {
 							ans[0] = maxChoice[0]; ans[1] = i; ans[2] = j;
 							ans[3] = ex; ans[4] = ey;
@@ -317,6 +321,8 @@ public class cb {
 						if(board[i][j].rank == 0) {wkx = i; wky = j; twkx = wkx; twky = wky;}
 						res += ps;
 						if(endgameFlag) bseenEndgame = false;
+						if(maxChoice[0] > alpha && maxChoice[0] < beta) beta = maxChoice[0];
+						else if(maxChoice[0] <= alpha) return ans;
 					}
 				}
 			}
