@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Pawn extends Piece{
 
 	public Pawn(boolean team) {
-		super(team); this.rank = 5;
+		super(team); this.rank = 5; this.val = 100;
 	}
 	
 	public String getImgName() {
@@ -12,7 +12,7 @@ public class Pawn extends Piece{
 	}
 	
 	public boolean isValidMove(int sx, int sy, int ex, int ey) {
-		if(!Move.onBoard(ex, ey) || inCheck(this.team, sx, sy, ex, ey)) return false;
+		if(!Move.onBoard(ex, ey) || inCheck(this.team, sx, sy, ex, ey)) {return false;}
 		if(this.team) { //black
 			if(ey == sy - 1 && ex == sx && cb.board[ex][ey] == null) return true;
 			if(sy == 6 && ey == sy - 2 && ex == sx && cb.board[sx][sy-1] == null && cb.board[sx][sy-2] == null) return true;

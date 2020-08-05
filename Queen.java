@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Queen extends Piece{
 
 	public Queen(boolean team) {
-		super(team); this.rank = 1;
+		super(team); this.rank = 1; this.val = 900;
 	}
 	
 	public String getImgName() {

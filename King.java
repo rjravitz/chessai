@@ -6,7 +6,7 @@ public class King extends Piece{
 	int dys[] = {1, 1, 0, -1, -1, -1, 0, 1};
 	
 	public King(boolean team) {
-		super(team); this.rank = 0;
+		super(team); this.rank = 0; this.val = 20000;
 	}
 	
 	public String getImgName() {

@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 
 //NOTE: I'm currently assuming the user will not try to move a piece to its original
-//spot as a move. So make sure to check for that.
+//spot as a move. So make sure to check for that. -- to do
 
+//also get rid of the test board and add abpruning
+
+//source for piece-square tables: https://www.chessprogramming.org/Simplified_Evaluation_Function
 
 public class cb { 
 	public static Piece[][] board;
@@ -21,7 +24,108 @@ public class cb {
 	public static Piece[] bpieces = {new King(true), new Queen(true), new Rook(true), new Bishop(true), new Knight(true), new Pawn(true)};
 	public static Piece[] wpieces = {new King(false), new Queen(false), new Rook(false), new Bishop(false), new Knight(false), new Pawn(false)};
 	
+	public static final double[][] wppts = {
+			{0,  0,  0,  0,  0,  0,  0,  0},
+			{50, 50, 50, 50, 50, 50, 50, 50},
+			{10, 10, 20, 30, 30, 20, 10, 10},
+			{5,  5, 10, 25, 25, 10,  5,  5},
+			{0,  0,  0, 20, 20,  0,  0,  0},
+			{5, -5,-10,  0,  0,-10, -5,  5},
+			{5, 10, 10,-20,-20, 10, 10,  5},
+			{0,  0,  0,  0,  0,  0,  0,  0}
+
+	}; 
 	
+	public static final double[][] bppts = rev(wppts);
+	    
+	public static final double[][] wnpts = {
+			{-50,-40,-30,-30,-30,-30,-40,-50},
+			{-40,-20,  0,  0,  0,  0,-20,-40},
+			{-30,  0, 10, 15, 15, 10,  0,-30},
+			{-30,  5, 15, 20, 20, 15,  5,-30},
+			{-30,  0, 15, 20, 20, 15,  0,-30},
+			{-30,  5, 10, 15, 15, 10,  5,-30},
+			{-40,-20,  0,  5,  5,  0,-20,-40},
+			{-50,-40,-30,-30,-30,-30,-40,-50},
+	 }; 
+	
+	public static final double[][] bnpts = rev(wnpts);
+	    
+	public static final double[][] wbpts = {
+	        {-20,-10,-10,-10,-10,-10,-10,-20},
+	        {-10,  0,  0,  0,  0,  0,  0,-10},
+	        {-10,  0,  5, 10, 10,  5,  0,-10},
+	        {-10,  5,  5, 10, 10,  5,  5,-10},
+	        {-10,  0, 10, 10, 10, 10,  0,-10},
+	        {-10, 10, 10, 10, 10, 10, 10,-10},
+	        {-10,  5,  0,  0,  0,  0,  5,-10},
+	        {-20,-10,-40,-10,-10,-40,-10,-20},
+	 }; 
+	
+	public static final double[][] bbpts = rev(wbpts);
+	
+	public static final double[][] wqpts = {
+			{-20,-10,-10, -5, -5,-10,-10,-20},
+			{-10,  0,  0,  0,  0,  0,  0,-10},
+			{-10,  0,  5,  5,  5,  5,  0,-10},
+			{-5,  0,  5,  5,  5,  5,  0, -5},
+			{ 0,  0,  5,  5,  5,  5,  0, -5},
+			{-10,  5,  5,  5,  5,  5,  0,-10},
+			{-10,  0,  5,  0,  0,  0,  0,-10},
+			{-20,-10,-10, -5, -5,-10,-10,-20}
+	};
+	
+	public static final double[][] bqpts = rev(wqpts);
+	
+	public static final double[][] wrpts = {
+			 {0,  0,  0,  0,  0,  0,  0,  0},
+			 {5, 10, 10, 10, 10, 10, 10,  5},
+			 {-5,  0,  0,  0,  0,  0,  0, -5},
+			 {-5,  0,  0,  0,  0,  0,  0, -5},
+			 {-5,  0,  0,  0,  0,  0,  0, -5},
+			 {-5,  0,  0,  0,  0,  0,  0, -5},
+			 {-5,  0,  0,  0,  0,  0,  0, -5},
+			 {0,  0,  0,  5,  5,  0,  0,  0}
+	};
+	
+	public static final double[][] brpts = rev(wrpts);
+	    
+	public static final double[][] wkpts = {
+	        {-30, -40, -40, -50, -50, -40, -40, -30},
+	        {-30, -40, -40, -50, -50, -40, -40, -30},
+	        {-30, -40, -40, -50, -50, -40, -40, -30},
+	        {-30, -40, -40, -50, -50, -40, -40, -30},
+	        {-20, -30, -30, -40, -40, -30, -30, -20},
+	        {-10, -20, -20, -20, -20, -20, -20, -10}, 
+	        {20,  20,   0,   0,   0,   0,  20,  20},
+	        {20,  30,  10,   0,   0,  10,  30,  20}
+	 }; 
+	
+	public static final double[][] bkpts = rev(wkpts);
+	    
+	public static final double[][] wkptsend = {
+	        {-50,-40,-30,-20,-20,-30,-40,-50},
+	        {-30,-20,-10,  0,  0,-10,-20,-30},
+	        {-30,-10, 20, 30, 30, 20,-10,-30},
+	        {-30,-10, 30, 40, 40, 30,-10,-30},
+	        {-30,-10, 30, 40, 40, 30,-10,-30},
+	        {-30,-10, 20, 30, 30, 20,-10,-30},
+	        {-30,-30,  0,  0,  0,  0,-30,-30},
+	        {-50,-30,-30,-30,-30,-30,-30,-50}
+	 };
+	
+	public static final double[][] bkptsend = rev(wkptsend);
+	    
+	static double[][] rev(double[][] a){
+	    double[][] ans = new double[8][8];
+	    for(int i = 0; i < 8; i++) {
+	    	for(int j = 0; j < 8; j++) {
+	    		ans[i][j] = a[7-i][j];
+	    	}
+	    }
+	    return ans;
+	}
+
  	
 	public cb() {
 		board = new Piece[8][8]; tb = new Piece[8][8];
@@ -57,8 +161,7 @@ public class cb {
                 drawSquare(i, j);
                 if(board[i][j] != null) StdDraw.picture(i + 0.5, j + 0.5, board[i][j].getImgName());
             }
-        }
-        
+        }    
 	}
 	
 	static void pawnPromotion(Piece[][] b, boolean team, int x, int y) {
@@ -84,15 +187,142 @@ public class cb {
         StdDraw.filledSquare(i + 0.5, j + 0.5, 0.5);
     }
     
+    public static boolean bseenEndgame = false, wseenEndgame;
+    
+    static boolean endgame(boolean team) {
+    	int queens = 0, rooks = 0, minors = 0;
+    	for(int i = 0; i < 8; i++) {
+    		for(int j = 0; j < 8; j++) {
+    			if(board[i][j] != null && (board[i][j].team == team)) {
+    				if(board[i][j].rank == 1) queens++;
+    				else if(board[i][j].rank == 2) rooks++;
+    				else if (board[i][j].rank == 3 || board[i][j].rank == 4) minors++;
+    			}
+    		}
+    	}
+    	return queens == 0 || ((rooks == 0) && (minors <= 1));
+    }
+    
+    static int boardscore() {
+    	int score = 0;
+    	for(int i = 0; i < 8; i++) {
+    		for(int j = 0; j < 8; j++){
+    			score += piecescore(i, j);
+    		}
+    	}
+    	return score;
+    }
+    
+    static int piecescore(int i, int j) {
+    	int score = 0;
+    	if(board[i][j] != null) {
+			if(board[i][j].team) {
+				if(board[i][j].rank == 0) {
+					if(bseenEndgame) score += bkptsend[i][j] + board[i][j].val;
+					else score += bkpts[i][j] + board[i][j].val;
+				}
+				else if(board[i][j].rank == 1) score += bqpts[i][j] + board[i][j].val;
+				else if(board[i][j].rank == 2) score += brpts[i][j] + board[i][j].val;
+				else if(board[i][j].rank == 3) score += bbpts[i][j] + board[i][j].val;
+				else if(board[i][j].rank == 4) score += bnpts[i][j] + board[i][j].val;
+				else score += bppts[i][j] + board[i][j].val;
+			} else {
+				if(board[i][j].rank == 0) {
+					if(wseenEndgame) score -= (wkptsend[i][j] + board[i][j].val);
+					else score -= (wkpts[i][j] + board[i][j].val);
+				}
+				else if(board[i][j].rank == 1) score -= (wqpts[i][j] + board[i][j].val);
+				else if(board[i][j].rank == 2) score -= (wrpts[i][j] + board[i][j].val);
+				else if(board[i][j].rank == 3) score -= (wbpts[i][j] + board[i][j].val);
+				else if(board[i][j].rank == 4) score -= (wnpts[i][j] + board[i][j].val);
+				else score -= (wppts[i][j] + board[i][j].val);
+			}
+		}
+    	return score;
+    }
+    
     static void execMove(Piece[][] b, int sx, int sy, int ex, int ey) {
     	b[ex][ey] = b[sx][sy];
 		b[sx][sy] = null;
 		if(ey == 0 && b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
 		else if(ey == 7 && !b[ex][ey].team && b[ex][ey].rank == 5) pawnPromotion(b, b[ex][ey].team, ex, ey);
-		if(b[ex][ey] != null && b[ex][ey].team && b[ex][ey].rank == 0) {tbkx = ex; tbky = ey; twkx = wkx; twky = wky;}
-		else if(b[ex][ey] != null && !b[ex][ey].team && b[ex][ey].rank == 0) {tbkx = bkx; tbky = bky; twkx = ex; twky = ey;}
-		else {tbkx = bkx; tbky = bky; twkx = wkx; twky = wky;}
+		if(b[ex][ey] != null && b[ex][ey].team && b[ex][ey].rank == 0) {bkx = ex; bky = ey;}
+		else if(b[ex][ey] != null && !b[ex][ey].team && b[ex][ey].rank == 0) {wkx = ex; wky = ey;}
+		tbkx = bkx; tbky = bky; twkx = wkx; twky = wky;
     }
+
+	
+	//returns an array of 5 elements containing the score, sx, sy, ex, ey
+	public static int[] minimax() {
+		bseenEndgame = endgame(true); wseenEndgame = endgame(false);
+		int score = boardscore();
+		return maxie(2, score);
+	}
+	
+	public static int[] maxie(int depth, int score) {
+		int res = score; boolean endgameFlag = false; boolean pieceTaken = false;
+		int[] ans = {(int)-1e9, -1, -1, -1, -1};
+		for(int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(board[i][j] != null && board[i][j].team) {
+					int ps = piecescore(i, j);
+					ArrayList<Move> a = board[i][j].getValidMoves(i, j);
+					for(int k = 0; k < a.size(); k++) {
+						int ex = a.get(k).x; int ey = a.get(k).y;
+						Piece spiece = board[i][j]; Piece epiece = board[ex][ey];
+						if(epiece != null) {res -= piecescore(ex, ey); pieceTaken = true;}
+						res -= ps;
+						execMove(board, i, j, ex, ey);
+						if(pieceTaken && endgame(false)) {wseenEndgame = true; endgameFlag = true;}
+						int[] minChoice = minnie(depth, res);
+						if(minChoice[0] > ans[0]) {
+							ans[0] = minChoice[0]; ans[1] = i; ans[2] = j;
+							ans[3] = ex; ans[4] = ey;
+						}
+						board[i][j] = spiece; board[ex][ey] = epiece;
+						if(pieceTaken) res += piecescore(ex, ey);
+						if(board[i][j].rank == 0) {bkx = i; bky = j; tbkx = bkx; tbky = bky;}
+						res += ps;
+						if(endgameFlag) wseenEndgame = false;
+					}
+				}
+			}
+		}
+		return ans;
+	}
+	
+	public static int[] minnie(int depth, int score) {
+		int res = score; boolean endgameFlag = false; boolean pieceTaken = false;
+		int[] ans = {(int)1e9, -1, -1, -1, -1};
+		if(depth == 0) {ans[0] = score; return ans;}
+		for(int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(board[i][j] != null && !board[i][j].team) {
+					int ps = piecescore(i, j);
+					ArrayList<Move> a = board[i][j].getValidMoves(i, j);
+					for(int k = 0; k < a.size(); k++) {
+						int ex = a.get(k).x; int ey = a.get(k).y;
+						Piece spiece = board[i][j]; Piece epiece = board[ex][ey];
+						if(epiece != null) {res -= piecescore(ex, ey); pieceTaken = true;}
+						res -= ps;
+						execMove(board, i, j, ex, ey);
+						if(pieceTaken && endgame(false)) {bseenEndgame = true; endgameFlag = true;}
+						int[] maxChoice = maxie(depth - 1, res);
+						if(maxChoice[0] < ans[0]) {
+							ans[0] = maxChoice[0]; ans[1] = i; ans[2] = j;
+							ans[3] = ex; ans[4] = ey;
+						}
+						board[i][j] = spiece; board[ex][ey] = epiece;
+						if(pieceTaken) res += piecescore(ex, ey);
+						if(board[i][j].rank == 0) {wkx = i; wky = j; twkx = wkx; twky = wky;}
+						res += ps;
+						if(endgameFlag) bseenEndgame = false;
+					}
+				}
+			}
+		}
+		return ans;
+	}
 	
 	public static void main(String[] args) { 
         cb b = new cb();
@@ -117,23 +347,12 @@ public class cb {
         	else if(StdDraw.isMousePressed() && selected && pressed1) {
         		if(board[selectedX][selectedY].isValidMove(selectedX, selectedY, x, y)) {
         			execMove(board, selectedX, selectedY, x, y);
-        			if(board[x][y].rank == 0) {wkx = x; wky = y;}
             		b.draw(); StdDraw.show(); selected = false; pressed1 = false; ready = false;
-            		boolean done = false;
-            		for(int i = 0; i < 8; i++) {
-            			for(int j = 0; j < 8; j++) {
-            				if(board[i][j] != null && board[i][j].team) {
-            					ArrayList<Move> a = board[i][j].getValidMoves(i, j);
-            					if(!a.isEmpty()) {
-            						execMove(board, i, j, a.get(0).x, a.get(0).y);
-            						if(board[a.get(0).x][a.get(0).y].rank == 0) {wkx = a.get(0).x; wky = a.get(0).y;}
-            	        			done = true;
-            	        			b.draw(); StdDraw.pause(20); StdDraw.show(); 
-            	        			break;
-            					}
-            				}
-            			}
-            			if(done) break;
+            		int[] bmove = minimax();
+            		if(bseenEndgame) System.out.println("endgame");
+            		if(bmove[0] > (int)-1e9) {
+            			execMove(board, bmove[1], bmove[2], bmove[3], bmove[4]);
+            			b.draw(); StdDraw.pause(20); StdDraw.show();
             		}
         		}
         		b.draw(); StdDraw.show(); selected = false; pressed1 = false; ready = false;

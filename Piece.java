@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Piece{
 	boolean team; //0 is white, 1 is black
 	int rank; //0 - king, 1 - queen, 2 - rook, 3 - bishop, 4 - knight, 5 - pawn
+	int val;
 	
 	public Piece() {}
 	
@@ -37,7 +38,7 @@ public class Piece{
 		for(int i = 0; i < 8; i++) {
 			int x = kx + cb.ndxs[i]; int y = ky + cb.ndys[i];
 			if(!Move.onBoard(x, y)) continue;
-			if(cb.tb[x][y] != null && (cb.tb[x][y].team ^ team) && cb.tb[x][y].rank == 4) return true;
+			if(cb.tb[x][y] != null && (cb.tb[x][y].team ^ team) && cb.tb[x][y].rank == 4) {return true;}
 		}
 		
 		//king/pawn checks
@@ -46,14 +47,14 @@ public class Piece{
 			if(!Move.onBoard(x, y)) continue;
 			if(cb.tb[x][y] != null && (cb.tb[x][y].team ^ team)) {
 				if(cb.tb[x][y].rank == 0) return true;
-				else if(cb.tb[x][y].rank == 5 && ((team && (i == 3 || i == 5)) || (!team && (i == 1 || i == 7)))) return true;
+				else if(cb.tb[x][y].rank == 5 && ((team && (i == 3 || i == 5)) || (!team && (i == 1 || i == 7)))) {return true;}
 			}
 		}
 		
 		//rook/queen checks (N, S, E, W)
 		for(int i = ky + 1; i < 8; i++) {
 			if(cb.tb[kx][i] != null) {
-				if((cb.tb[kx][i].team ^ team) && (cb.tb[kx][i].rank == 1 || cb.tb[kx][i].rank == 2)) return true;
+				if((cb.tb[kx][i].team ^ team) && (cb.tb[kx][i].rank == 1 || cb.tb[kx][i].rank == 2)) {return true;}
 				break;
 			}
 		}
@@ -65,13 +66,14 @@ public class Piece{
 		}
 		for(int i = kx + 1; i < 8; i++) {
 			if(cb.tb[i][ky] != null) {
-				if((cb.tb[i][ky].team ^ team) && (cb.tb[i][ky].rank == 1 || cb.tb[i][ky].rank == 2)) return true;
+				if((cb.tb[i][ky].team ^ team) && (cb.tb[i][ky].rank == 1 || cb.tb[i][ky].rank == 2)) {;return true;}
 				break;
 			}
 		}
 		for(int i = kx - 1; i >= 0; i--) {
 			if(cb.tb[i][ky] != null) {
-				if((cb.tb[i][ky].team ^ team) && (cb.tb[i][ky].rank == 1 || cb.tb[i][ky].rank == 2)) return true;
+				if((cb.tb[i][ky].team ^ team) && (cb.tb[i][ky].rank == 1 || cb.tb[i][ky].rank == 2)) {return true;}
+				//somethings fucked up with the king position
 				break;
 			}
 		}
@@ -81,7 +83,7 @@ public class Piece{
 		i = kx + 1; j = ky - 1; 
 		while(Move.onBoard(i, j)) {
 			if(cb.tb[i][j] != null) {
-				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) return true;
+				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) {return true;}
 				break;
 			}
 			i++; j--;
@@ -89,7 +91,7 @@ public class Piece{
 		i = kx + 1; j = ky + 1; 
 		while(Move.onBoard(i, j)) {
 			if(cb.tb[i][j] != null) {
-				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) return true;
+				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) {return true;}
 				break;
 			}
 			i++; j++;
@@ -97,7 +99,7 @@ public class Piece{
 		i = kx - 1; j = ky + 1;
 		while(Move.onBoard(i, j)) {
 			if(cb.tb[i][j] != null) {
-				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) return true;
+				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) {return true;}
 				break;
 			}
 			i--; j++;
@@ -105,7 +107,7 @@ public class Piece{
 		i = kx - 1; j = ky - 1;
 		while(Move.onBoard(i, j)) {
 			if(cb.tb[i][j] != null) {
-				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) return true;
+				if((cb.tb[i][j].team ^ team) && (cb.tb[i][j].rank == 1 || cb.tb[i][j].rank == 3)) {return true;}
 				break;
 			}
 			i--; j--;

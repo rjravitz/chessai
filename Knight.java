@@ -5,7 +5,7 @@ public class Knight extends Piece{
 	int dys[] = {2, 1, -1, -2, -2, -1, 1, 2};
 	
 	public Knight(boolean team) {
-		super(team); this.rank = 4;
+		super(team); this.rank = 4; this.val = 320;
 	}
 	
 	public String getImgName() {

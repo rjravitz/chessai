@@ -5,6 +5,7 @@ public class Bishop extends Piece{
 	public Bishop(boolean team) {
 		super(team);
 		this.rank = 3;
+		this.val = 330;
 	}
 	
 	public String getImgName() {
